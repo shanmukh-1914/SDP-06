@@ -29,7 +29,7 @@ function simpleHash(str) {
   return String(hash);
 }
 
-export function registerUser({ firstName, lastName, email, password }) {
+export function registerUser({ firstName, lastName, email, password, isAdmin = false }) {
   const users = loadUsers();
   const exists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
   if (exists) {
@@ -40,7 +40,8 @@ export function registerUser({ firstName, lastName, email, password }) {
     firstName,
     lastName,
     email,
-    passwordHash: simpleHash(password)
+    passwordHash: simpleHash(password),
+    isAdmin: !!isAdmin
   };
   users.push(user);
   saveUsers(users);

@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import './Auth.css';
 import { registerUser } from './auth';
 
-function Signup() {
+function Signup({ isAdmin = false }) {
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
@@ -22,7 +22,7 @@ function Signup() {
       <div className="auth-wrapper">
         {/* Header */}
         <header className="auth-header">
-          <Link to="/" className="logo-link">
+          <Link to="/home" className="logo-link">
             <div className="logo">
               <span className="logo-icon">📈</span>
               <span className="logo-text">InvestPro</span>
@@ -34,8 +34,8 @@ function Signup() {
         <div className="auth-content">
           <div className="auth-form-container">
             <div className="auth-form-header">
-              <h1>Create Account</h1>
-              <p>Join thousands of smart investors</p>
+              <h1>{isAdmin ? 'Create Admin Account' : 'Create Account'}</h1>
+              <p>{isAdmin ? 'Register an administrator for the platform.' : 'Join thousands of smart investors'}</p>
             </div>
 
             <form onSubmit={(e) => {
@@ -54,14 +54,15 @@ function Signup() {
                 firstName: formData.firstName.trim(),
                 lastName: formData.lastName.trim(),
                 email: formData.email.trim(),
-                password: formData.password
+                password: formData.password,
+                isAdmin: !!isAdmin
               });
               if (!result.ok) {
                 setError(result.error || 'Registration failed');
                 setSubmitting(false);
                 return;
               }
-              setTimeout(() => { navigate('/login'); }, 400);
+              setTimeout(() => { navigate(isAdmin ? '/admin' : '/home'); }, 400);
             }} className="auth-form">
               <div className="form-row">
                 <div className="form-group">
@@ -162,7 +163,7 @@ function Signup() {
                 <span>or</span>
               </div>
 
-              <button type="button" className="google-btn">
+              <button type="button" className="google-btn" onClick={()=>navigate('/google-oauth')}>
                 <span className="google-icon">G</span>
                 Sign up with Google
               </button>

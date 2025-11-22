@@ -2,6 +2,13 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import Home from './components/Home';
 import Login from './components/Login';
 import Signup from './components/Signup';
+import RegisterChoice from './components/RegisterChoice';
+import AdminSignup from './components/AdminSignup';
+import Landing from './components/Landing';
+import GoogleAuth from './components/GoogleAuth';
+import GoogleOAuth from './components/GoogleOAuth';
+import AdminLogin from './components/AdminLogin';
+import AdminDashboard from './components/AdminDashboard';
 import Investments from './components/Investments';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
@@ -15,9 +22,17 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          <Route path="/" element={<Home />} />
+          {/* Landing page is the first page users see */}
+          <Route path="/" element={<Landing />} />
+          <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/google" element={<GoogleAuth />} />
+          <Route path="/google-oauth" element={<GoogleOAuth />} />
+          <Route path="/admin-login" element={<AdminLogin />} />
+          <Route path="/admin" element={<AdminDashboard />} />
+          <Route path="/register" element={<RegisterChoice />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/support" element={<Support />} />

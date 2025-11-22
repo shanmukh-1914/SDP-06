@@ -1,4 +1,4 @@
-import { Link } from 'react-router-dom';
+import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentUser, logoutUser } from './auth';
 import { useState, useEffect } from 'react';
 
@@ -20,24 +20,33 @@ function Layout({ children }) {
     };
   }, []);
 
+  const navigate = useNavigate();
+
   const handleLogout = () => {
     logoutUser();
     setUser(null);
+    // After logout, send users back to the landing (login-as) page
+    navigate('/');
   };
+
+  const location = useLocation();
+
+  const authPages = ['/login','/signup','/register','/admin-signup','/admin-login'];
+  const showAuthButtons = !user && !authPages.includes(location.pathname);
 
   return (
     <div className="app">
       <header className="header" role="banner">
         <div className="container">
           <div className="nav-brand">
-            <Link to="/" className="logo" aria-label="InvestPro Home">
+            <Link to="/home" className="logo" aria-label="InvestPro Home">
               <span className="logo-icon">📈</span>
               <span className="logo-text">InvestPro</span>
             </Link>
             <span className="sebi-badge">SEBI Registered</span>
           </div>
           <nav className="nav-menu" aria-label="Primary Navigation">
-            <Link to="/">Home</Link>
+            <Link to="/home">Home</Link>
             <Link to="/investments">Investments</Link>
             <Link to="/resources">Resources</Link>
             <Link to="/support">Support</Link>
@@ -49,10 +58,12 @@ function Layout({ children }) {
                 <button onClick={handleLogout} className="login-btn" style={{border:'1px solid #22c55e'}}>Logout</button>
               </>
             ) : (
-              <>
-                <Link to="/login" className="login-btn">Login</Link>
-                <Link to="/signup" className="get-started-btn">Get Started</Link>
-              </>
+              showAuthButtons ? (
+                <>
+                  <Link to="/login" className="login-btn">Login</Link>
+                  <Link to="/register" className="get-started-btn">Get Started</Link>
+                </>
+              ) : null
             )}
           </div>
         </div>

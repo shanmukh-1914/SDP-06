@@ -19,7 +19,7 @@ function Login() {
       <div className="auth-wrapper">
         {/* Header */}
         <header className="auth-header">
-          <Link to="/" className="logo-link">
+          <Link to="/home" className="logo-link">
             <div className="logo">
               <span className="logo-icon">📈</span>
               <span className="logo-text">InvestPro</span>
@@ -45,7 +45,7 @@ function Login() {
                 setSubmitting(false);
                 return;
               }
-              setTimeout(() => navigate('/'), 300);
+              setTimeout(() => navigate('/home'), 300);
             }} className="auth-form">
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
@@ -91,7 +91,7 @@ function Login() {
                 <span>or</span>
               </div>
 
-              <button type="button" className="google-btn">
+              <button type="button" className="google-btn" onClick={()=>navigate('/google-oauth')}>
                 <span className="google-icon">G</span>
                 Continue with Google
               </button>

@@ -38,6 +38,32 @@ export default function Investments() {
 
   const total = items.reduce((sum, i) => sum + (isNaN(i.amount) ? 0 : i.amount), 0);
 
+  // Mutual Fund API state (mfapi.in)
+  const [mfLoading, setMfLoading] = useState(false);
+  const [mfError, setMfError] = useState(null);
+  const [mfData, setMfData] = useState(null);
+
+  useEffect(() => {
+    // fetch data for scheme code 100121 on mount
+    let mounted = true;
+    async function fetchMf() {
+      setMfLoading(true);
+      setMfError(null);
+      try {
+        const res = await fetch('https://api.mfapi.in/mf/100121');
+        if (!res.ok) throw new Error('Network response not ok');
+        const data = await res.json();
+        if (mounted) setMfData(data);
+      } catch (err) {
+        if (mounted) setMfError(err.message || 'Failed to fetch mutual fund data');
+      } finally {
+        if (mounted) setMfLoading(false);
+      }
+    }
+    fetchMf();
+    return () => { mounted = false; };
+  }, []);
+
   return (
     <section className="investments-section container" aria-labelledby="investments-heading">
       <h2 id="investments-heading">Your Investments</h2>
@@ -89,6 +115,34 @@ export default function Investments() {
         <ul>
           {market.map(m => <li key={m.id}>{m.title}</li>)}
         </ul>
+
+        <h3>Mutual Fund: Scheme 100121</h3>
+        {mfLoading && <div>Loading mutual fund data…</div>}
+        {mfError && <div className="error">{mfError}</div>}
+        {mfData && (
+          <div className="mf-data">
+            <div><strong>{mfData.meta && mfData.meta.scheme_name}</strong></div>
+            <div>Scheme Code: {mfData.meta && mfData.meta.scheme_code}</div>
+            <div>Fund House: {mfData.meta && mfData.meta.fund_house}</div>
+            <h4>Latest NAVs</h4>
+            <ul>
+              {mfData.data && mfData.data.slice(0,5).map((d, idx) => (
+                <li key={idx}>{d.date} — {d.nav}</li>
+              ))}
+            </ul>
+            <button type="button" className="btn-secondary" onClick={() => {
+              // simple manual refresh
+              setMfData(null);
+              setMfLoading(true);
+              setMfError(null);
+              fetch('https://api.mfapi.in/mf/100121')
+                .then(r => { if (!r.ok) throw new Error('Network response not ok'); return r.json(); })
+                .then(d => setMfData(d))
+                .catch(e => setMfError(e.message || 'Failed to fetch'))
+                .finally(() => setMfLoading(false));
+            }}>Refresh</button>
+          </div>
+        )}
       </section>
     </section>
   );
