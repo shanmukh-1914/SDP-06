@@ -132,7 +132,7 @@ export function getSampleUserData() {
   };
 }
 
-export function seedDemoData() {
+export async function seedDemoData() {
   const users = loadUsers();
   if (users.length) return { seeded: false };
   const demoUsers = [
@@ -141,14 +141,14 @@ export function seedDemoData() {
       firstName: 'Demo',
       lastName: 'User',
       email: 'demo@example.com',
-      passwordHash: simpleHash('Password1')
+      passwordHash: await hashPassword('Password1')
     },
     {
       id: 'u2',
       firstName: 'Rita',
       lastName: 'Investor',
       email: 'rita@example.com',
-      passwordHash: simpleHash('Secret2')
+      passwordHash: await hashPassword('Secret2')
     }
   ];
   saveUsers(demoUsers);
