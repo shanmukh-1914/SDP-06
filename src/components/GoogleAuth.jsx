@@ -29,11 +29,17 @@ export default function GoogleAuth(){
     const parts = local.split(/[._-]+/);
     const first = parts[0] ? parts[0].slice(0,1).toUpperCase()+parts[0].slice(1) : 'Google';
     const last = parts[1] ? parts[1].slice(0,1).toUpperCase()+parts[1].slice(1) : 'User';
-    const res = registerUser({ firstName: first, lastName: last, email: email.trim(), password: Math.random().toString(36).slice(-8), isAdmin: false });
-    if (!res.ok) { setError(res.error || 'Unable to create account'); return; }
-    const updated = getAllUsers();
-    setAccounts(updated);
-    signIn(email.trim());
+    (async () => {
+      try {
+        const res = await registerUser({ firstName: first, lastName: last, email: email.trim(), password: Math.random().toString(36).slice(-8), isAdmin: false });
+        if (!res.ok) { setError(res.error || 'Unable to create account'); return; }
+        const updated = getAllUsers();
+        setAccounts(updated);
+        signIn(email.trim());
+      } catch (err) {
+        setError('Unable to create account');
+      }
+    })();
   }
 
   return (

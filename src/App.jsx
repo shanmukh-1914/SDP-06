@@ -5,8 +5,8 @@ import Signup from './components/Signup';
 import RegisterChoice from './components/RegisterChoice';
 import AdminSignup from './components/AdminSignup';
 import Landing from './components/Landing';
+import LoginChoice from './components/LoginChoice';
 import GoogleAuth from './components/GoogleAuth';
-import GoogleOAuth from './components/GoogleOAuth';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import Investments from './components/Investments';
@@ -22,12 +22,12 @@ function App() {
     <Router>
       <Layout>
         <Routes>
-          {/* Landing page is the first page users see */}
-          <Route path="/" element={<Landing />} />
+          {/* Home page is the first page users see */}
+          <Route path="/" element={<Home />} />
           <Route path="/home" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/login-choice" element={<LoginChoice />} />
           <Route path="/google" element={<GoogleAuth />} />
-          <Route path="/google-oauth" element={<GoogleOAuth />} />
           <Route path="/admin-login" element={<AdminLogin />} />
           <Route path="/admin" element={<AdminDashboard />} />
           <Route path="/register" element={<RegisterChoice />} />

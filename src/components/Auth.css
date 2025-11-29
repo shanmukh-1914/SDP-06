@@ -113,6 +113,14 @@
   box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
 }
 
+.form-success { background:#ecfdf5; color:#065f46; padding:.65rem .9rem; border-radius:6px; font-size:.85rem; margin:.5rem 0; }
+
+.loading-spinner {
+  width:18px; height:18px; border-radius:50%; border:2px solid rgba(0,0,0,0.08); border-top-color:#10b981; animation: spin 0.9s linear infinite; display:inline-block; vertical-align:middle; margin-left:8px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
 .form-options {
   display: flex;
   justify-content: space-between;
@@ -333,4 +341,104 @@
     gap: 1rem;
     align-items: flex-start;
   }
+}
+
+/* Mutual Fund Details Modal */
+.mf-details-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(15,23,42,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.mf-details-dialog {
+  background: white;
+  width: 100%;
+  max-width: 1100px;
+  max-height: 90vh;
+  overflow: auto;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(2,6,23,0.3);
+  padding: 1rem 1.25rem;
+}
+
+.mf-details-header {
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+}
+
+.mf-details-title {
+  margin:0;
+  font-size:1.25rem;
+}
+
+.mf-details-close {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  padding: 6px 12px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-weight: 600;
+  color: #0f172a;
+  transition: background 0.18s ease, transform 0.06s ease, box-shadow 0.12s ease;
+  min-width: 56px;
+  height: 36px;
+}
+
+.mf-details-close:hover {
+  background: #f8fafc;
+  transform: translateY(-1px);
+}
+
+.mf-details-close:active {
+  transform: translateY(0);
+}
+
+.mf-details-close:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.12);
+}
+
+.mf-details-body {
+  display:flex;
+  gap:16px;
+}
+
+.mf-details-main {
+  flex: 1 1 60%;
+}
+
+.mf-details-side {
+  width: 320px;
+  flex: 0 0 320px;
+}
+
+.mf-chart-box {
+  width: 100%;
+  height: 220px;
+  border: 1px solid #eef2ff;
+  padding: 8px;
+  box-sizing: border-box;
+}
+
+.mf-chart-box svg { width: 100%; height: 100%; display:block; }
+
+.mf-list { display: grid; grid-template-columns: 1fr; gap: 8px; }
+.mf-item { background: #fff; border-radius:8px; padding:10px; }
+
+@media (max-width: 900px) {
+  .mf-details-body { flex-direction: column; }
+  .mf-details-side { width: 100%; flex: none; }
+  .mf-chart-box { height: 180px; }
 }

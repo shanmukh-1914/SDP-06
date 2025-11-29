@@ -34,7 +34,7 @@ function Home() {
           ))}
         </div>
         <div style={{marginTop: '1rem'}}>
-          <Link to="/investments" className="btn-primary">Open Investments</Link>
+          <Link to="/investments" className="btn-primary cta">Open Investments</Link>
         </div>
       </section>
     );
@@ -53,14 +53,8 @@ function Home() {
               Start your investment journey with India's most trusted mutual fund platform. Zero commission, expert guidance, and seamless investing experience.
             </p>
             <div className="hero-buttons">
-              <button className="btn-primary" type="button" aria-label="Continue with Google">
-                <span>G</span>
-                Continue with Google
-              </button>
-              <button className="btn-secondary" type="button">
-                <span>▶</span>
-                Watch Demo
-              </button>
+              <Link to="/login-choice" className="btn-secondary" aria-label="Login">Login</Link>
+              <Link to="/register" className="btn-primary cta" aria-label="Get Started">Get Started</Link>
             </div>
             <div className="trust-indicators" role="list" aria-label="Trust Indicators">
               <div className="indicator" role="listitem">

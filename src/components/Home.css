@@ -89,6 +89,29 @@
   background: rgba(34, 197, 94, 0.1);
 }
 
+/* Logout specific styling */
+.btn-logout {
+  background: #ffffff;
+  color: #16a34a;
+  border: 1px solid #22c55e;
+  padding: 0.45rem 0.9rem;
+  border-radius: 8px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.18s, color 0.18s, transform 0.06s;
+}
+
+.btn-logout:hover {
+  background: #16a34a;
+  color: white;
+  transform: translateY(-1px);
+}
+
+.btn-logout:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.12);
+}
+
 .get-started-btn {
   background: #22c55e;
   color: white;
@@ -151,14 +174,32 @@
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: background 0.3s;
+  transition: background 0.18s ease, transform 0.06s ease, box-shadow 0.12s ease;
 }
 
 .btn-primary:hover {
   background: #16a34a;
+  transform: translateY(-1px);
+  color: white; /* override global a:hover which sets link color */
+}
+
+.btn-primary:active {
+  transform: translateY(0) scale(0.998);
+}
+
+.btn-primary:focus {
+  outline: none;
+  box-shadow: 0 0 0 4px rgba(34,197,94,0.14);
+  color: white;
+}
+
+/* CTA variant for highlighted primary actions */
+.btn-primary.cta {
+  padding: 0.9rem 1.6rem;
+  box-shadow: 0 6px 18px rgba(16,185,129,0.12);
 }
 
 .btn-secondary {

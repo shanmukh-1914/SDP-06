@@ -38,7 +38,7 @@ function Signup({ isAdmin = false }) {
               <p>{isAdmin ? 'Register an administrator for the platform.' : 'Join thousands of smart investors'}</p>
             </div>
 
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
               setError('');
               if (formData.password !== formData.confirmPassword) {
@@ -50,19 +50,25 @@ function Signup({ isAdmin = false }) {
                 return;
               }
               setSubmitting(true);
-              const result = registerUser({
-                firstName: formData.firstName.trim(),
-                lastName: formData.lastName.trim(),
-                email: formData.email.trim(),
-                password: formData.password,
-                isAdmin: !!isAdmin
-              });
-              if (!result.ok) {
-                setError(result.error || 'Registration failed');
+              try {
+                const result = await registerUser({
+                  firstName: formData.firstName.trim(),
+                  lastName: formData.lastName.trim(),
+                  email: formData.email.trim(),
+                  password: formData.password,
+                  isAdmin: !!isAdmin
+                });
+                if (!result.ok) {
+                  setError(result.error || 'Registration failed');
+                  setSubmitting(false);
+                  return;
+                }
+                // show small success before redirect
+                setTimeout(() => { navigate(isAdmin ? '/admin' : '/home'); }, 500);
+              } catch (err) {
+                setError('Registration error');
                 setSubmitting(false);
-                return;
               }
-              setTimeout(() => { navigate(isAdmin ? '/admin' : '/home'); }, 400);
             }} className="auth-form">
               <div className="form-row">
                 <div className="form-group">
@@ -163,10 +169,7 @@ function Signup({ isAdmin = false }) {
                 <span>or</span>
               </div>
 
-              <button type="button" className="google-btn" onClick={()=>navigate('/google-oauth')}>
-                <span className="google-icon">G</span>
-                Sign up with Google
-              </button>
+              {/* Removed external Google signup to keep the site within syllabus concepts */}
             </form>
 
             <div className="auth-footer">

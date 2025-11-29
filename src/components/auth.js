@@ -1,7 +1,3 @@
-// Simple localStorage-based auth utilities using only allowed concepts.
-// Data shape: users stored under key 'mf_users' as JSON array of {id, firstName, lastName, email, passwordHash}
-// Current user email stored under key 'mf_current_user'.
-
 const USERS_KEY = 'mf_users';
 const CURRENT_KEY = 'mf_current_user';
 
@@ -20,40 +16,55 @@ function saveUsers(users) {
 }
 
 function simpleHash(str) {
-  // Not secure; demonstration only.
   let hash = 0;
   for (let i = 0; i < str.length; i++) {
     hash = (hash << 5) - hash + str.charCodeAt(i);
-    hash |= 0; // Convert to 32bit int
+    hash |= 0;
   }
   return String(hash);
 }
 
-export function registerUser({ firstName, lastName, email, password, isAdmin = false }) {
+async function hashPassword(str) {
+  // Use Web Crypto API when available for a SHA-256 hash, fallback to simpleHash
+  try {
+    if (typeof window !== 'undefined' && window.crypto && window.crypto.subtle) {
+      const enc = new TextEncoder();
+      const data = enc.encode(str);
+      const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
+      const hashArray = Array.from(new Uint8Array(hashBuffer));
+      return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+  } catch (e) {
+    // ignore and fallback
+  }
+  return simpleHash(str);
+}
+
+export async function registerUser({ firstName, lastName, email, password, isAdmin = false }) {
   const users = loadUsers();
   const exists = users.some(u => u.email.toLowerCase() === email.toLowerCase());
   if (exists) {
     return { ok: false, error: 'Email already registered' };
   }
+  const passwordHash = await hashPassword(password || '');
   const user = {
     id: Date.now().toString(),
     firstName,
     lastName,
     email,
-    passwordHash: simpleHash(password),
+    passwordHash,
     isAdmin: !!isAdmin
   };
   users.push(user);
   saveUsers(users);
   localStorage.setItem(CURRENT_KEY, email);
-  // notify same-window listeners
   try { window.dispatchEvent(new Event('mf_auth_change')); } catch (e) {}
   return { ok: true, user };
 }
 
-export function loginUser({ email, password }) {
+export async function loginUser({ email, password }) {
   const users = loadUsers();
-  const hash = simpleHash(password);
+  const hash = await hashPassword(password || '');
   const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.passwordHash === hash);
   if (!found) {
     return { ok: false, error: 'Invalid credentials' };
@@ -65,6 +76,7 @@ export function loginUser({ email, password }) {
 
 export function logoutUser() {
   localStorage.removeItem(CURRENT_KEY);
+  try { localStorage.removeItem('mf_is_admin'); } catch(e) {}
   try { window.dispatchEvent(new Event('mf_auth_change')); } catch (e) {}
 }
 
@@ -76,7 +88,6 @@ export function getCurrentUser() {
 }
 
 export function getDemoInvestments() {
-  // return a small set of demo investments
   return [
     { id: 'd1', name: 'Large Cap Fund', amount: 15000, date: '2024-12-01' },
     { id: 'd2', name: 'SIP Growth', amount: 5000, date: '2025-01-15' },
@@ -84,12 +95,10 @@ export function getDemoInvestments() {
   ];
 }
 
-// Return all registered users (for demo/admin purposes)
 export function getAllUsers() {
   return loadUsers();
 }
 
-// Per-user investments are stored under key mf_investments_<email>
 function investmentsKey(email) {
   return `mf_investments_${email}`;
 }
@@ -110,7 +119,6 @@ export function saveUserInvestments(email, list) {
   localStorage.setItem(investmentsKey(email), JSON.stringify(list));
 }
 
-// Return a demo full user data object for the first user if exists (for quick sample)
 export function getSampleUserData() {
   const users = loadUsers();
   if (users.length === 0) return null;
@@ -124,7 +132,6 @@ export function getSampleUserData() {
   };
 }
 
-// Seed demo data if no users exist. Safe: only runs when there are no users.
 export function seedDemoData() {
   const users = loadUsers();
   if (users.length) return { seeded: false };
@@ -145,12 +152,10 @@ export function seedDemoData() {
     }
   ];
   saveUsers(demoUsers);
-  // seed investments for demo user
   const demoInvestments = [
     { id: 'i1', name: 'Index Fund - Nifty', amount: 12000, date: '2024-10-01' },
     { id: 'i2', name: 'Balanced Advantage', amount: 7000, date: '2024-08-05' }
   ];
   saveUserInvestments(demoUsers[0].email, demoInvestments);
-  // do not auto-login; leave current user empty
   return { seeded: true, users: demoUsers };
 }

@@ -11,6 +11,7 @@ function Login() {
   const [error, setError] = useState('');
   const [submitting, setSubmitting] = useState(false);
   const navigate = useNavigate();
+  const googleRoute = '/google';
 
   // Inline handlers used directly in JSX per request.
 
@@ -35,17 +36,22 @@ function Login() {
               <p>Sign in to your InvestPro account</p>
             </div>
 
-            <form onSubmit={(e) => {
+            <form onSubmit={async (e) => {
               e.preventDefault();
               setError('');
               setSubmitting(true);
-              const result = loginUser({ email: formData.email.trim(), password: formData.password });
-              if (!result.ok) {
-                setError(result.error || 'Login failed');
+              try {
+                const result = await loginUser({ email: formData.email.trim(), password: formData.password });
+                if (!result.ok) {
+                  setError(result.error || 'Login failed');
+                  setSubmitting(false);
+                  return;
+                }
+                setTimeout(() => navigate('/home'), 300);
+              } catch (err) {
+                setError('Login error');
                 setSubmitting(false);
-                return;
               }
-              setTimeout(() => navigate('/home'), 300);
             }} className="auth-form">
               <div className="form-group">
                 <label htmlFor="email">Email Address</label>
@@ -91,10 +97,7 @@ function Login() {
                 <span>or</span>
               </div>
 
-              <button type="button" className="google-btn" onClick={()=>navigate('/google-oauth')}>
-                <span className="google-icon">G</span>
-                Continue with Google
-              </button>
+              {/* Google sign-in removed for syllabus compliance */}
             </form>
 
             <div className="auth-footer">

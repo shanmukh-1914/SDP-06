@@ -19,6 +19,7 @@ export default function AdminLogin(){
     setTimeout(()=>{
       if (email.trim().toLowerCase() === ADMIN_EMAIL && password === ADMIN_PASSWORD) {
         try { localStorage.setItem('mf_current_user', ADMIN_EMAIL); } catch(e){}
+        try { localStorage.setItem('mf_is_admin', 'true'); localStorage.setItem('mf_admin_name', 'Administrator'); } catch(e){}
         setSubmitting(false);
         navigate('/admin');
         return;
