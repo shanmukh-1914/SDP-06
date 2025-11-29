@@ -10,11 +10,14 @@ import GoogleAuth from './components/GoogleAuth';
 import AdminLogin from './components/AdminLogin';
 import AdminDashboard from './components/AdminDashboard';
 import Investments from './components/Investments';
+import PaymentReminder from './components/PaymentReminder';
+import ScheduledReminders from './components/ScheduledReminders';
 import Layout from './components/Layout';
 import ProtectedRoute from './components/ProtectedRoute';
 import NotFound from './components/NotFound';
 import Resources from './components/Resources';
 import Support from './components/Support';
+import ReminderSettings from './components/ReminderSettings';
 import './App.css';
 
 function App() {
@@ -34,7 +37,10 @@ function App() {
           <Route path="/signup" element={<Signup />} />
           <Route path="/admin-signup" element={<AdminSignup />} />
           <Route path="/investments" element={<ProtectedRoute><Investments /></ProtectedRoute>} />
+          <Route path="/payment-reminder" element={<ProtectedRoute><PaymentReminder /></ProtectedRoute>} />
+          <Route path="/scheduled-reminders" element={<ProtectedRoute><ScheduledReminders /></ProtectedRoute>} />
           <Route path="/resources" element={<Resources />} />
+          <Route path="/reminder-settings" element={<ProtectedRoute><ReminderSettings /></ProtectedRoute>} />
           <Route path="/support" element={<Support />} />
           <Route path="*" element={<NotFound />} />
         </Routes>

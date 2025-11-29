@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import { getCurrentUser, loadUserInvestments, saveUserInvestments } from './auth';
+import useNotifications from '../hooks/useNotifications';
+import { Link } from 'react-router-dom';
 
 export default function Investments() {
   const user = getCurrentUser();
@@ -30,7 +32,55 @@ export default function Investments() {
     };
     setItems(prev => [newItem, ...prev]);
     setForm({ name: '', amount: '', date: '' });
+    try {
+      const settings = loadReminderSettings();
+      if (settings && settings.autoCreate) {
+        // compute scheduledAt based on daysBefore
+        const daysBefore = parseInt(settings.daysBefore || 0, 10) || 0;
+        let scheduledAt = null;
+        try {
+          // prefer local date; set a default time so comparisons work (09:00 local)
+          const dueParts = newItem.date;
+          const due = new Date(dueParts + 'T09:00:00');
+          if (!isNaN(due.getTime())) {
+            const s = new Date(due);
+            if (daysBefore > 0) s.setDate(s.getDate() - daysBefore);
+            scheduledAt = s.toISOString();
+          }
+        } catch (e) { scheduledAt = null; }
+
+        const payload = {
+          type: 'payment_reminder',
+          title: `Payment due for ${newItem.name}`,
+          body: `A payment of ₹${newItem.amount} for ${newItem.name} is scheduled on ${newItem.date}.`,
+          amount: newItem.amount,
+          dueDate: newItem.date,
+          investmentId: newItem.id
+        };
+        if (settings.recurrence && settings.recurrence !== 'none') payload.recurring = settings.recurrence;
+        if (scheduledAt) payload.scheduledAt = scheduledAt;
+        addNotification(payload);
+      }
+    } catch (e) {
+      // ignore
+    }
   }
+
+  // read reminder settings from localStorage; kept simple and per-user
+  function loadReminderSettings() {
+    try {
+      const raw = localStorage.getItem('mf_reminder_settings');
+      if (!raw) return { autoCreate: true, daysBefore: 3 };
+      return JSON.parse(raw);
+    } catch (e) { return { autoCreate: true, daysBefore: 3 }; }
+  }
+
+  const { addNotification } = useNotifications();
+
+  // when items change, and last action was an add, auto-create a reminder
+  useEffect(() => {
+    // nothing here; we will trigger notification from addInvestment directly to avoid duplicates
+  }, []);
 
   function removeInvestment(id) {
     setItems(prev => prev.filter(i => i.id !== id));
@@ -39,6 +89,7 @@ export default function Investments() {
   // Edit / Update
   const [editingId, setEditingId] = useState(null);
   const [editForm, setEditForm] = useState({ name: '', amount: '', date: '' });
+  // (reminder UI removed)
 
   function startEdit(item) {
     setEditingId(item.id);
@@ -270,6 +321,7 @@ export default function Investments() {
             onChange={handleChange}
           />
           <button type="submit" className="btn-primary">Add</button>
+          <Link to="/reminder-settings" style={{ alignSelf: 'center', marginLeft: 8 }} className="btn-secondary">Reminder Settings</Link>
         </div>
       </form>
       <div className="investment-summary">Total Invested: <strong>{total.toFixed(2)}</strong></div>
@@ -295,6 +347,7 @@ export default function Investments() {
                 </div>
               </>
             )}
+            
           </li>
         ))}
         {items.length === 0 && <li>No investments yet.</li>}

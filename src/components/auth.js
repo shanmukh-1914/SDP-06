@@ -158,4 +158,5 @@ export async function seedDemoData() {
   ];
   saveUserInvestments(demoUsers[0].email, demoInvestments);
   return { seeded: true, users: demoUsers };
+ 
 }

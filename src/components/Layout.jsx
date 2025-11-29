@@ -1,6 +1,7 @@
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { getCurrentUser, logoutUser } from './auth';
 import { useState, useEffect } from 'react';
+import PaymentNotifications from './PaymentNotifications';
 
 function Layout({ children }) {
   const [user, setUser] = useState(null);
@@ -72,9 +73,10 @@ function Layout({ children }) {
               </>
             )}
           </nav>
-          <div className="header-buttons">
+          <div className="header-buttons" style={{ display: 'flex', alignItems: 'center' }}>
             {(user || isAdmin) ? (
               <>
+                <PaymentNotifications />
                 <span className="welcome-text">Hi, {isAdmin ? (localStorage.getItem('mf_admin_name') || 'Admin') : user.firstName}</span>
                 <button onClick={handleLogout} className="login-btn btn-logout" style={{border:'1px solid #22c55e'}}>Logout</button>
               </>

@@ -20,9 +20,17 @@ function Home() {
     else setDemo([]);
   }, [user]);
 
+  useEffect(() => {
+    if (user) setDemo(getDemoInvestments());
+    return () => {};
+  }, [user]);
+
+  // Reminder-related UI removed per request
+
   if (user) {
     return (
       <section className="dashboard container" aria-labelledby="welcome">
+        {/* Reminder banner removed */}
         <h2 id="welcome">Welcome back, {user.firstName} 👋</h2>
         <p>Your quick investments overview</p>
         <div className="demo-grid">
