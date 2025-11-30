@@ -60,6 +60,34 @@ export default function Investments() {
         if (settings.recurrence && settings.recurrence !== 'none') payload.recurring = settings.recurrence;
         if (scheduledAt) payload.scheduledAt = scheduledAt;
         addNotification(payload);
+        // also try to persist to server if available
+        (async () => {
+          try {
+            const base = (import.meta.env.VITE_API_BASE || '');
+            const invRes = await fetch(base + '/api/investments', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userEmail: user?.email, name: newItem.name, amount: newItem.amount, date: newItem.date })
+            });
+            if (!invRes.ok) {
+              console.warn('Investments API returned', invRes.status);
+            } else {
+              const j = await invRes.json();
+              console.log('Saved investment to server', j);
+            }
+            // create reminder on server as well
+            const remRes = await fetch(base + '/api/reminders', {
+              method: 'POST', headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ userEmail: user?.email, type: 'payment_reminder', title: payload.title, body: payload.body, amount: payload.amount, dueDate: payload.dueDate, scheduledAt: payload.scheduledAt, recurring: payload.recurring })
+            });
+            if (!remRes.ok) console.warn('Reminders API returned', remRes.status);
+            else {
+              const jr = await remRes.json();
+              console.log('Saved reminder to server', jr);
+            }
+          } catch (e) {
+            console.warn('Network/API error when saving to server (falling back to local):', e?.message || e);
+          }
+        })();
       }
     } catch (e) {
       // ignore

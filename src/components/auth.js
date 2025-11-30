@@ -47,6 +47,32 @@ export async function registerUser({ firstName, lastName, email, password, isAdm
     return { ok: false, error: 'Email already registered' };
   }
   const passwordHash = await hashPassword(password || '');
+  // Try to persist to backend; fall back to localStorage when unavailable
+  const payload = { firstName, lastName, email, passwordHash, isAdmin: !!isAdmin };
+  try {
+    const res = await fetch('/api/users', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data && data.ok) {
+      // ensure local copy exists for offline
+      const savedUser = { id: data.user.id || Date.now().toString(), firstName, lastName, email, passwordHash, isAdmin: !!isAdmin };
+      users.push(savedUser);
+      saveUsers(users);
+      localStorage.setItem(CURRENT_KEY, email);
+      try { window.dispatchEvent(new Event('mf_auth_change')); } catch (e) {}
+      return { ok: true, user: savedUser };
+    }
+    // if server responded but with error, return that
+    if (data && data.error) return { ok: false, error: data.error };
+  } catch (e) {
+    // network error - fall back to local-only
+    console.warn('Register: backend unavailable, falling back to localStorage', e?.message || e);
+  }
+
+  // Local fallback
   const user = {
     id: Date.now().toString(),
     firstName,
@@ -65,6 +91,31 @@ export async function registerUser({ firstName, lastName, email, password, isAdm
 export async function loginUser({ email, password }) {
   const users = loadUsers();
   const hash = await hashPassword(password || '');
+  // Try login against backend first
+  try {
+    const res = await fetch('/api/users/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, passwordHash: hash })
+    });
+    const data = await res.json().catch(() => null);
+    if (res.ok && data && data.ok && data.user) {
+      // sync to localStorage for offline
+      const exists = users.some(u => u.email.toLowerCase() === data.user.email.toLowerCase());
+      if (!exists) {
+        users.push({ id: data.user.id || Date.now().toString(), firstName: data.user.firstName, lastName: data.user.lastName, email: data.user.email, passwordHash: hash, isAdmin: data.user.isAdmin || false });
+        saveUsers(users);
+      }
+      localStorage.setItem(CURRENT_KEY, data.user.email);
+      try { window.dispatchEvent(new Event('mf_auth_change')); } catch (e) {}
+      return { ok: true, user: data.user };
+    }
+    if (data && data.error) return { ok: false, error: data.error };
+  } catch (e) {
+    console.warn('Login: backend unavailable, falling back to localStorage', e?.message || e);
+  }
+
+  // Local fallback
   const found = users.find(u => u.email.toLowerCase() === email.toLowerCase() && u.passwordHash === hash);
   if (!found) {
     return { ok: false, error: 'Invalid credentials' };
